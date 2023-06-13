@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -12,26 +12,38 @@ import {
 } from "firebase/auth";
 import { db } from "../../firebase";
 import { doc, setDoc } from "firebase/firestore";
-import { useAuthStore } from "@/app/utilities/authStore";
-import { useEmailStore } from "@/app/utilities/emailStore";
 import { BsFillPersonFill } from "react-icons/bs";
 import { AiOutlineCheck, AiOutlineClose } from "react-icons/ai";
 import { FaSpinner } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { RootState, AppDispatch } from "../../store";
+import { useDispatch, useSelector } from "react-redux";
+import { setIsUserAuth, setUser } from "../../utilities/authSlice";
+import { setModal, toggleModal } from "../../utilities/modalSlice";
 
-function LogInModal({ openModal }: { openModal: any }) {
-  const authStore = useAuthStore();
-  const emailStore = useEmailStore();
+function LogInModal() {
   const auth = getAuth();
+  const dispatch: AppDispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.user);
   const [guestLoading, setGuestLoading] = useState<boolean>(false);
   const [googleLoading, setGoogleLoading] = useState<boolean>(false);
   const [emailLoading, setEmailLoading] = useState<boolean>(false);
   const [emailSignUpLoading, setEmailSignUpLoading] = useState<boolean>(false);
   const [passwordReset, setPasswordReset] = useState<boolean>(false);
-  const [logInModal, setLogInModal] = useState(true);
-  const [signUpModal, setSignUpModal] = useState(false);
-  const [passwordModal, setPasswordModal] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
+  const activeModal = useSelector(
+    (state: RootState) => state.modal.activeModal
+  );
+
+  function openModal() {
+    dispatch(toggleModal());
+  }
+
+  useEffect(() => {
+    dispatch(setModal("logIn"));
+  }, [dispatch]);
 
   const emailSignUp = async (e: any) => {
     try {
@@ -61,7 +73,7 @@ function LogInModal({ openModal }: { openModal: any }) {
       await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, email, password);
       const user = auth.currentUser;
-      console.log(user)
+      console.log(user);
       if (user) {
         loginAuthSuccess();
         await setDoc(doc(db, "users", user.uid), {
@@ -109,7 +121,6 @@ function LogInModal({ openModal }: { openModal: any }) {
       await signInWithPopup(auth, provider);
       const user = auth.currentUser;
       if (user) {
-        loginAuthSuccess();
         await setDoc(doc(db, "users", user.uid), {
           email: user.email,
           uid: user.uid,
@@ -117,6 +128,7 @@ function LogInModal({ openModal }: { openModal: any }) {
       }
       openModal();
       stopLoading();
+      loginAuthSuccess();
     } catch (error) {
       stopLoading();
       alert(error);
@@ -139,9 +151,17 @@ function LogInModal({ openModal }: { openModal: any }) {
   };
 
   const loginAuthSuccess = () => {
-    const user = getAuth().currentUser;
-    authStore.setIsUserAuth(true);
-    emailStore.setEmail(user?.email || "");
+    dispatch(setIsUserAuth(true));
+    if (user) {
+      dispatch(
+        setUser({
+          uid: user!.uid,
+          email: user!.email,
+          subscriptionPlan: user!.subscriptionPlan,
+        })
+      );
+    }
+    router.push("/for-you");
   };
 
   function stopLoading() {
@@ -152,40 +172,20 @@ function LogInModal({ openModal }: { openModal: any }) {
   }
 
   function swapToLogInModal() {
-    if (logInModal === false) {
-      setSignUpModal(false);
-      setPasswordModal(false);
-      setLogInModal(true);
-    } else {
-      setPasswordModal(false);
-      setLogInModal(false);
-      setSignUpModal(true);
-    }
+    dispatch(setModal("logIn"));
   }
 
   function swapToSignUpModal() {
-    if (signUpModal === false) {
-      setLogInModal(false);
-      setSignUpModal(true);
-    } else {
-      setSignUpModal(false);
-      setLogInModal(true);
-    }
+    dispatch(setModal("signUp"));
   }
 
   function swapToPasswordModal() {
-    if (passwordModal === false) {
-      setLogInModal(false);
-      setPasswordModal(true);
-    } else {
-      setPasswordModal(false);
-      setLogInModal(true);
-    }
+    dispatch(setModal("passwordReset"));
   }
 
   return (
     <div className="auth">
-      {logInModal && (
+      {activeModal === "logIn" && (
         <>
           <div className="auth__content">
             <div className="auth__title">Log in to Summarist</div>
@@ -261,7 +261,7 @@ function LogInModal({ openModal }: { openModal: any }) {
           <div className="auth__forgot--password" onClick={swapToPasswordModal}>
             Forgot your password?
           </div>
-          <button className="auth__switch--btn" onClick={swapToLogInModal}>
+          <button className="auth__switch--btn" onClick={swapToSignUpModal}>
             Don{`'`}t have an account?
           </button>
           <div className="auth__close--btn" onClick={openModal}>
@@ -269,7 +269,7 @@ function LogInModal({ openModal }: { openModal: any }) {
           </div>
         </>
       )}
-      {signUpModal && (
+      {activeModal === "signUp" && (
         <>
           <div className="auth__content">
             <div className="auth__title">Sign up to Summarist</div>
@@ -325,7 +325,7 @@ function LogInModal({ openModal }: { openModal: any }) {
               </button>
             </form>
           </div>
-          <button className="auth__switch--btn" onClick={swapToSignUpModal}>
+          <button className="auth__switch--btn" onClick={swapToLogInModal}>
             Already have an account?
           </button>
           <div className="auth__close--btn" onClick={openModal}>
@@ -333,7 +333,7 @@ function LogInModal({ openModal }: { openModal: any }) {
           </div>
         </>
       )}
-      {passwordModal && (
+      {activeModal === "passwordReset" && (
         <>
           <div className="auth__content">
             <div className="auth__title">Reset your password</div>

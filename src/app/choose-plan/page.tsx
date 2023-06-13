@@ -10,33 +10,37 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
-import usePremiumStatus from "../stripe/usePremiumStatus";
-import { getAuth } from "firebase/auth";
 import createYearlySubscriptionCheckoutSession from "../stripe/createYearlySubscriptionCheckoutSession";
 import createMonthlySubscriptionCheckoutSession from "../stripe/createMonthlySubscriptionCheckoutSession";
-import SidebarSizing from "../components/UI/SidebarSizing";
+import SidebarSizingAndSearchBar from "../components/UI/SidebarSizingAndSearchbar";
+import { AppDispatch, RootState } from "../store";
+import { useDispatch, useSelector } from "react-redux";
+import { initializeAuth } from "../utilities/authSlice";
 
 function Page() {
   const [activePlan, setActivePlan] = useState<string>("yearly");
   const [expanded, setExpanded] = React.useState<string | false>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const dispatch: AppDispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const uid = user?.uid;
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const user = getAuth().currentUser;
-  const userIsPremium = usePremiumStatus(user);
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
 
   const handleYearlyCheckout = () => {
     setIsLoading(true);
-    createYearlySubscriptionCheckoutSession(user!.uid);
+    if (uid) {
+      createYearlySubscriptionCheckoutSession(uid);
+    }
   };
 
   const handleMonthlyCheckout = () => {
     setIsLoading(true);
-    createMonthlySubscriptionCheckoutSession(user!.uid);
+    if (uid) {
+      createMonthlySubscriptionCheckoutSession(uid);
+    }
   };
 
   const handleChange =
@@ -296,10 +300,7 @@ function Page() {
         </div>
       </div>
       <div className="not__visible">
-        <SidebarSizing
-          isSidebarOpen={isSidebarOpen}
-          toggleSidebar={toggleSidebar}
-        />
+        <SidebarSizingAndSearchBar />
       </div>
       <Footer />
     </>

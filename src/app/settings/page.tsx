@@ -3,24 +3,30 @@
 import React, { useEffect, useState, useRef } from "react";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import LogInModal from "../components/UI/LogInModal";
-import usePremiumStatus from "../stripe/usePremiumStatus";
-import SidebarSizing from "../components/UI/SidebarSizing";
+import SidebarSizingAndSearchBar from "../components/UI/SidebarSizingAndSearchbar";
 import Skeleton from "../components/UI/Skeleton";
 import Link from "next/link";
+import type { RootState } from "../../app/store";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleModal } from "../utilities/modalSlice";
+import { AppDispatch } from "../store";
+import { initializeAuth } from "../utilities/authSlice";
 
 function UserSettings() {
   const [email, setEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const modal__dimRef = useRef<HTMLDivElement>(null);
-  const user = getAuth().currentUser;
-  const userIsPremium = usePremiumStatus(user);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  const dispatch: AppDispatch = useDispatch();
+  const isUserAuth = useSelector((state: RootState) => state.auth.isUserAuth);
+  const isModalOpen = useSelector(
+    (state: RootState) => state.modal.isModalOpen
+  );
+  const user = useSelector((state: RootState) => state.auth.user);
+  const subscriptionPlan = user?.subscriptionPlan;
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-  const premiumStatus = usePremiumStatus(user);
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
 
   useEffect(() => {
     const auth = getAuth();
@@ -37,9 +43,9 @@ function UserSettings() {
     return () => unsubscribe();
   }, [email]);
 
-  function openModal() {
-    setIsModalOpen(!isModalOpen);
-  }
+  const openModal = () => {
+    dispatch(toggleModal());
+  };
 
   function handleOverlayClick(event: React.MouseEvent<HTMLDivElement>) {
     if (event.target === modal__dimRef.current) {
@@ -81,21 +87,18 @@ function UserSettings() {
         </section>
       ) : (
         <>
-          <SidebarSizing
-            isSidebarOpen={isSidebarOpen}
-            toggleSidebar={toggleSidebar}
-          />
+          <SidebarSizingAndSearchBar />
 
           <section>
             <div className="container">
               <div className="row setting__row">
                 <div className="section__title page__title">Settings</div>
-                {email ? (
+                {isUserAuth ? (
                   <>
-                    {premiumStatus ? (
+                    {subscriptionPlan ? (
                       <div className="setting__content">
                         <div className="settings__sub--title">
-                          Your Subscription plan
+                          Your Subscription plan:
                         </div>
                         <div className="settings__text">Premium</div>
                       </div>
@@ -114,7 +117,7 @@ function UserSettings() {
                       </div>
                     )}
                     <div className="setting__content">
-                      <div className="settings__sub--title">Email</div>
+                      <div className="settings__sub--title">Email:</div>
                       <div className="settings__text">{email}</div>
                     </div>
                   </>
@@ -148,7 +151,7 @@ function UserSettings() {
                 ref={modal__dimRef}
                 onClick={handleOverlayClick}
               >
-                <LogInModal openModal={openModal} />
+                <LogInModal />
               </div>
             )}
           </section>

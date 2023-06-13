@@ -5,7 +5,6 @@ import axios from "axios";
 import React, { useEffect, useState, useRef, MutableRefObject } from "react";
 import { useParams, useRouter } from "next/navigation";
 import LogInModal from "@/app/components/UI/LogInModal";
-import { useAuthStore } from "../../utilities/authStore";
 import BookSkeleton from "@/app/components/UI/BookSkeleton";
 import {
   AiOutlineBulb,
@@ -14,11 +13,16 @@ import {
 } from "react-icons/ai";
 import { BiMicrophone } from "react-icons/bi";
 import { IoBookOutline, IoBookmark, IoBookmarkOutline } from "react-icons/io5";
-import SidebarSizing from "@/app/components/UI/SidebarSizing";
+import SidebarSizingAndSearchBar from "@/app/components/UI/SidebarSizingAndSearchbar";
 import usePremiumStatus from "@/app/stripe/usePremiumStatus";
 import { getAuth } from "firebase/auth";
 import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/app/firebase";
+import type { RootState } from "../../store";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleModal } from "../../utilities/modalSlice";
+import { AppDispatch } from "../../store";
+import { initializeAuth } from "../../utilities/authSlice";
 
 interface Book {
   id: string;
@@ -44,35 +48,36 @@ interface Book {
 }
 
 const Page = () => {
-  let [userIsPremium, setUserIsPremium] = useState<boolean>();
   const [book, setBook] = useState<Book | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [duration, setDuration] = useState(0);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const modal__dimRef = useRef<HTMLDivElement>(null);
+  const isModalOpen = useSelector(
+    (state: RootState) => state.modal.isModalOpen
+  );
+  const isUserAuth = useSelector((state: RootState) => state.auth.isUserAuth);
   const router = useRouter();
   const params = useParams();
   const audioRef = useRef<any | null>();
-  const authStore = useAuthStore();
-  const isUserAuth = authStore.isUserAuth;
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const dispatch: AppDispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const subscriptionPlan = user?.subscriptionPlan;
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-  const user = getAuth().currentUser;
-  userIsPremium = usePremiumStatus(user);
+  useEffect(() => {
+    dispatch(initializeAuth()).then(() => {
+    });
+  }, [dispatch]);
 
   useEffect(() => {
     fetchBookData();
     checkIfBookIsBookmarked();
-  }, [fetchBookData]);
+  }, [params.id]);
 
   const API__URL = `https://us-central1-summaristt.cloudfunctions.net/getBook?id=${params.id}`;
 
   const openModal = () => {
-    setIsModalOpen(!isModalOpen);
+    dispatch(toggleModal());
   };
 
   function handleOverlayClick(event: React.MouseEvent<HTMLDivElement>) {
@@ -92,7 +97,7 @@ const Page = () => {
       openModal();
       return;
     }
-    if (!book?.subscriptionRequired || userIsPremium) {
+    if (!book?.subscriptionRequired || subscriptionPlan === "premium") {
       router.push(`/player/${book?.id}`);
       return;
     }
@@ -174,16 +179,13 @@ const Page = () => {
           ref={modal__dimRef}
           onClick={handleOverlayClick}
         >
-          <LogInModal openModal={openModal} />
+          <LogInModal />
         </div>
       )}
       {isLoading ? (
         <>
           <div className="wrapper">
-            <SidebarSizing
-              isSidebarOpen={isSidebarOpen}
-              toggleSidebar={toggleSidebar}
-            />
+            <SidebarSizingAndSearchBar />
 
             <div className="row">
               <div className="container">
@@ -194,10 +196,7 @@ const Page = () => {
         </>
       ) : (
         <div className={`wrapper ${isModalOpen ? "dimmed" : ""}`}>
-          <SidebarSizing
-            isSidebarOpen={isSidebarOpen}
-            toggleSidebar={toggleSidebar}
-          />
+          <SidebarSizingAndSearchBar />
           <div className="row">
             <div className="container">
               <div className="inner__wrapper">

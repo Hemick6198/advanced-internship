@@ -4,6 +4,9 @@ import axios from "axios";
 import { AiOutlineMenu, AiOutlineSearch, AiOutlineStar } from "react-icons/ai";
 import Link from "next/link";
 import { ImSpinner2 } from "react-icons/im";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store";
+import { setIsSidebarOpen } from "../utilities/sidebarSlice";
 
 interface Book {
   id?: string;
@@ -27,16 +30,19 @@ interface Book {
   handleBookClick: (id: string) => void;
 }
 
-interface SearchBarProps {
-  isSidebarOpen: boolean;
-  toggleSidebar: () => void;
-}
-
-export default function SearchBar({ toggleSidebar }: SearchBarProps) {
+export default function SearchBar() {
   const [showBooksWrapper, setShowBooksWrapper] = useState(false);
   const [searchResults, setSearchResults] = useState<Book[]>([]);
-  const searchBackgroundRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const searchBackgroundRef = useRef<HTMLDivElement>(null);
+  const isSidebarOpen = useSelector(
+    (state: RootState) => state.sidebar.isSidebarOpen
+  );
+  const dispatch = useDispatch();
+
+  const toggleSidebar = () => {
+    dispatch(setIsSidebarOpen(!isSidebarOpen));
+  };
 
   const handleInputChange = async (
     event: React.ChangeEvent<HTMLInputElement>
