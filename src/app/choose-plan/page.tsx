@@ -20,7 +20,7 @@ function Page() {
   const [activePlan, setActivePlan] = useState<string>("yearly");
   const [expanded, setExpanded] = React.useState<string | false>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);

@@ -21,6 +21,7 @@ import { FaSpinner } from "react-icons/fa";
 function LogInModal({ openModal }: { openModal: any }) {
   const authStore = useAuthStore();
   const emailStore = useEmailStore();
+  const auth = getAuth();
   const [guestLoading, setGuestLoading] = useState<boolean>(false);
   const [googleLoading, setGoogleLoading] = useState<boolean>(false);
   const [emailLoading, setEmailLoading] = useState<boolean>(false);
@@ -35,7 +36,6 @@ function LogInModal({ openModal }: { openModal: any }) {
   const emailSignUp = async (e: any) => {
     try {
       setEmailSignUpLoading(true);
-      const auth = getAuth();
       e.preventDefault();
       await createUserWithEmailAndPassword(auth, email, password);
       const user = auth.currentUser;
@@ -55,13 +55,13 @@ function LogInModal({ openModal }: { openModal: any }) {
   };
 
   const emailLogIn = async (e: any) => {
+    e.preventDefault();
     try {
       setEmailLoading(true);
-      const auth = getAuth();
       await setPersistence(auth, browserLocalPersistence);
-      e.preventDefault();
       await signInWithEmailAndPassword(auth, email, password);
       const user = auth.currentUser;
+      console.log(user)
       if (user) {
         loginAuthSuccess();
         await setDoc(doc(db, "users", user.uid), {
@@ -78,10 +78,9 @@ function LogInModal({ openModal }: { openModal: any }) {
   };
 
   const guestLogIn = async (e: any) => {
+    e.preventDefault();
     try {
       setGuestLoading(true);
-      e.preventDefault();
-      const auth = getAuth();
       await setPersistence(auth, browserLocalPersistence);
       const email = "guest@gmail.com";
       const password = "guest123";
@@ -105,7 +104,6 @@ function LogInModal({ openModal }: { openModal: any }) {
   const googleLogIn = async (e: any) => {
     try {
       setGoogleLoading(true);
-      const auth = getAuth();
       await setPersistence(auth, browserLocalPersistence);
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
@@ -126,9 +124,9 @@ function LogInModal({ openModal }: { openModal: any }) {
   };
 
   const sendPasswordReset = async (e: any) => {
+    e.preventDefault();
     try {
       setPasswordReset(true);
-      e.preventDefault();
       const auth = getAuth();
       await sendPasswordResetEmail(auth, email).then(() => {
         alert("Password reset email sent!");

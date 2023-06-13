@@ -1,7 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { AiOutlineMenu, AiOutlineSearch, AiOutlineStar } from "react-icons/ai";
 import Link from "next/link";
+import { ImSpinner2 } from "react-icons/im";
 
 interface Book {
   id?: string;
@@ -30,13 +32,11 @@ interface SearchBarProps {
   toggleSidebar: () => void;
 }
 
-export default function SearchBar({
-  isSidebarOpen,
-  toggleSidebar,
-}: SearchBarProps) {
+export default function SearchBar({ toggleSidebar }: SearchBarProps) {
   const [showBooksWrapper, setShowBooksWrapper] = useState(false);
   const [searchResults, setSearchResults] = useState<Book[]>([]);
   const searchBackgroundRef = useRef<HTMLDivElement>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleInputChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -44,6 +44,7 @@ export default function SearchBar({
     const inputValue = event.target.value;
     if (inputValue.length > 0) {
       setShowBooksWrapper(true);
+      setIsLoading(true);
       try {
         const { data } = await axios.get<Book[]>(
           `https://us-central1-summaristt.cloudfunctions.net/getBooksByAuthorOrTitle?search=${inputValue}`
@@ -51,6 +52,8 @@ export default function SearchBar({
         setSearchResults(data);
       } catch (error) {
         console.error("Error fetching search results:", error);
+      } finally {
+        setIsLoading(false);
       }
     } else {
       setShowBooksWrapper(false);
@@ -101,7 +104,11 @@ export default function SearchBar({
         </div>
         {showBooksWrapper && (
           <div className="search__books--wrapper">
-            {searchResults.length === 0 ? (
+            {isLoading ? (
+              <div className="audio__book--spinner">
+                <ImSpinner2 className="spinner" />
+              </div>
+            ) : searchResults.length === 0 ? (
               <div className="no-books-found">No books found</div>
             ) : (
               searchResults.map((book) => (

@@ -15,7 +15,7 @@ function UserSettings() {
   const modal__dimRef = useRef<HTMLDivElement>(null);
   const user = getAuth().currentUser;
   const userIsPremium = usePremiumStatus(user);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);

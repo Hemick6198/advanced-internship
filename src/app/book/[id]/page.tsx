@@ -19,7 +19,6 @@ import usePremiumStatus from "@/app/stripe/usePremiumStatus";
 import { getAuth } from "firebase/auth";
 import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "@/app/firebase";
-import Link from "next/link";
 
 interface Book {
   id: string;
@@ -56,7 +55,7 @@ const Page = () => {
   const audioRef = useRef<any | null>();
   const authStore = useAuthStore();
   const isUserAuth = authStore.isUserAuth;
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
 
   const toggleSidebar = () => {

@@ -908,6 +908,9 @@ SIDEBAR
     transition: transform 0.3s ease, width 0.3s ease;
     z-index: 9999;
   }
+  .sidebar__wrapper {
+    height: calc(100vh - 60px);
+  }
 }
 
 /* 
@@ -1202,6 +1205,10 @@ FOR-YOU PAGE
   cursor: pointer;
 }
 
+.sidebar__bump-up {
+  height: calc(-140px + 100vh);
+}
+
 @media (max-width: 768px) {
   .sidebar__toggle--btn {
     display: flex;
@@ -1213,6 +1220,8 @@ FOR-YOU PAGE
 }
 
 .for-you__sub--title {
+  display: flex;
+  align-items: center;
   font-weight: 300;
   color: #394547;
   margin-bottom: 16px;

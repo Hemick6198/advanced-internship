@@ -21,6 +21,7 @@ import { useAuthStore } from "@/app/utilities/authStore";
 import LogInModal from "../components/UI/LogInModal";
 import RecommendedSkeleton from "../components/UI/RecommendedSkeleton";
 import { FaSpinner } from "react-icons/fa";
+import { Skeleton } from "@mui/material";
 
 function Library() {
   const authStore = useAuthStore();
@@ -68,6 +69,7 @@ function Library() {
 
   useEffect(() => {
     if (savedBookIds.length === 0) {
+      setIsLoading(false);
       return;
     }
 
@@ -101,7 +103,7 @@ function Library() {
         console.error("Error fetching saved books:", error);
         setIsLoading(false);
       } finally {
-          setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -172,13 +174,13 @@ function Library() {
           {isClient && isUserAuth ? (
             <>
               <div className="for-you__title">Saved Books</div>
-              <div className="for-you__sub--title">
-                &quot;{savedBooks.length}&quot;{" "}
-                {savedBooks.length === 1 ? "item" : "items"}
-              </div>
-              <div className="saved__books">
-                {isLoading ? (
-                  <>
+              {isLoading ? (
+                <>
+                  <div className="for-you__sub--title">
+                    <Skeleton width={14} height={24} />{" "}
+                    {savedBooks.length === 1 ? " item" : " items"}
+                  </div>
+                  <div className="saved__books">
                     {Array.from({ length: 4 }).map((_, index) => (
                       <div
                         className="for-you__recommended--books-link"
@@ -187,9 +189,15 @@ function Library() {
                         <RecommendedSkeleton />
                       </div>
                     ))}
-                  </>
-                ) : (
-                  <>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="for-you__sub--title">
+                    {savedBooks.length}{" "}
+                    {savedBooks.length === 1 ? "item" : "items"}
+                  </div>
+                  <div className="saved__books">
                     <SavedBooks
                       savedBooks={savedBooks}
                       audioDurations={audioDurations}
@@ -198,12 +206,12 @@ function Library() {
                       onMoveToFinished={moveBookToFinished}
                       onDeleteBook={onDeleteBook}
                     />
-                  </>
-                )}
-              </div>
-              <div className="for-you__title">Finished</div>
-              <div className="for-you__sub--title">&quot;0&quot; Items</div>
-              <div className="saved__books"></div>
+                  </div>
+                  <div className="for-you__title">Finished</div>
+                  <div className="for-you__sub--title">0 Items</div>
+                  <div className="saved__books"></div>
+                </>
+              )}
             </>
           ) : (
             <div className="settings__login--wrapper">

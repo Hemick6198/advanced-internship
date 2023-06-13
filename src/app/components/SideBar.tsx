@@ -1,10 +1,9 @@
-
 /* eslint-disable @next/next/no-img-element */
 import React, { useState, useRef, useEffect } from "react";
 import LogInModal from "./UI/LogInModal";
 import { auth } from "../firebase";
 import { useAuthStore } from "../utilities/authStore";
-import { useParams, useRouter, usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import {
   AiOutlineHome,
   AiOutlineQuestionCircle,
@@ -30,7 +29,6 @@ const SideBar: React.FC<SideBarProps> = ({ isSidebarOpen }) => {
   const params = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fontSizes, setFontSizes] = useState("font1");
-  const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -120,7 +118,11 @@ const SideBar: React.FC<SideBarProps> = ({ isSidebarOpen }) => {
               height="114"
             />
           </div>
-          <div className="sidebar__wrapper">
+          <div
+            className={`sidebar__wrapper ${
+              pathname.startsWith("/player/") ? "sidebar__bump-up" : ""
+            }`}
+          >
             <div className="sidebar__top">
               <Link href="/for-you" className={`sidebar__link--wrapper`}>
                 <div

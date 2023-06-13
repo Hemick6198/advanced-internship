@@ -37,7 +37,7 @@ function Page() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const modal__dimRef = useRef<HTMLDivElement>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const params = useParams();
   const authStore = useAuthStore();
   const isUserAuth = authStore?.isUserAuth;

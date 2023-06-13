@@ -8,7 +8,7 @@ interface SidebarSizingProps {
 }
 
 export default function SidebarSizing(props: SidebarSizingProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
