@@ -5,8 +5,7 @@ let stripePromise: Stripe | null;
 const initializeStripe = async () => {
   if (!stripePromise) {
     stripePromise = await loadStripe(
-      "pk_test_51NFA3vD7glSKtpchnJmHPsSSzuZiK9vO5W36ttJyM4fF3TFurbw1lbnetqjo59MPWrXpnIeiAlJqFKlacdkahvuJ00sdfldEGv" ||
-        ""
+      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ""
     );
   }
   return stripePromise;
