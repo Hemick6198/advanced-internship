@@ -167,8 +167,7 @@ function Library() {
               {isLoading ? (
                 <>
                   <div className="for-you__sub--title">
-                    <Skeleton width={14} height={24} />{" "}
-                    {savedBooks.length === 1 ? " item" : " items"}
+                    <Skeleton width={50} height={24} />{" "}
                   </div>
                   <div className="saved__books">
                     {Array.from({ length: 4 }).map((_, index) => (
