@@ -2,14 +2,10 @@ import { db } from "../firebase";
 import {
   collection,
   addDoc,
-  getDoc,
   doc,
   onSnapshot,
 } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { useEffect } from "react";
-import { useState } from "react";
 import getStripe from "./initializeStripe";
 
 export default async function createYearlySubscriptionCheckoutSession(

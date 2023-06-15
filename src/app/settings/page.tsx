@@ -1,7 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState, useRef } from "react";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import LogInModal from "../components/UI/LogInModal";
 import usePremiumStatus from "../stripe/usePremiumStatus";
 import SidebarSizing from "../components/UI/SidebarSizing";
@@ -14,7 +14,6 @@ function UserSettings() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const modal__dimRef = useRef<HTMLDivElement>(null);
   const user = getAuth().currentUser;
-  const userIsPremium = usePremiumStatus(user);
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   const toggleSidebar = () => {

@@ -9,7 +9,6 @@ import LogInModal from "./components/UI/LogInModal";
 import { useAuthStore } from "./utilities/authStore";
 import { useRouter } from "next/navigation";
 import Footer from "./components/Footer";
-import { FaSpinner } from "react-icons/fa";
 
 export default function Home() {
   const [isModalOpen, setModalOpen] = useState(false);

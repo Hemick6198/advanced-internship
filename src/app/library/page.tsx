@@ -5,7 +5,6 @@ import React, {
   useEffect,
   MutableRefObject,
   useRef,
-  use,
 } from "react";
 import SavedBooks from "../components/SavedBooks";
 import SidebarSizing from "../components/UI/SidebarSizing";
@@ -20,7 +19,6 @@ import { useBookStore } from "../utilities/bookStore";
 import { useAuthStore } from "@/app/utilities/authStore";
 import LogInModal from "../components/UI/LogInModal";
 import RecommendedSkeleton from "../components/UI/RecommendedSkeleton";
-import { FaSpinner } from "react-icons/fa";
 import { Skeleton } from "@mui/material";
 
 function Library() {
