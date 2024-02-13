@@ -92,8 +92,8 @@ const SideBar = () => {
     fontSizeElement?.classList.remove("font4");
   }
 
-  // testing git push/pull 
-  
+  // testing 
+
   const logUserOut = () => {
     auth.signOut();
     setIsUserAuth(false);
