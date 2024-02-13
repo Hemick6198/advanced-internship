@@ -141,12 +141,8 @@ function Library() {
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        const bookRef = doc(
-          collection(db, "users", user.uid, "library"),
-          bookId
-        );
+        const bookRef = doc(db, "users", user.uid, "library", bookId);
         await deleteDoc(bookRef);
-
         setSavedBooks((prevSavedBooks) =>
           prevSavedBooks.filter((book) => book.id !== bookId)
         );

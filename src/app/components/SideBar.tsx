@@ -92,6 +92,8 @@ const SideBar = () => {
     fontSizeElement?.classList.remove("font4");
   }
 
+  // testing git push/pull 
+  
   const logUserOut = () => {
     auth.signOut();
     setIsUserAuth(false);
@@ -119,9 +121,8 @@ const SideBar = () => {
             />
           </div>
           <div
-            className={`sidebar__wrapper ${
-              pathname.startsWith("/player/") ? "sidebar__bump-up" : ""
-            }`}
+            className={`sidebar__wrapper 
+            ${pathname.startsWith("/player/") ? "sidebar__bump-up" : ""}`}
           >
             <div className="sidebar__top">
               <Link href="/for-you" className={`sidebar__link--wrapper`}>

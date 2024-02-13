@@ -20,6 +20,8 @@ const DisplayTrack = ({
   setDuration(seconds);
 };
 
+console.log(book?.audioLink)
+
   return (
     <div>
       <audio

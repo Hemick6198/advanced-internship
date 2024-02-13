@@ -73,7 +73,6 @@ function LogInModal() {
       await setPersistence(auth, browserLocalPersistence);
       await signInWithEmailAndPassword(auth, email, password);
       const user = auth.currentUser;
-      console.log(user);
       if (user) {
         loginAuthSuccess();
         await setDoc(doc(db, "users", user.uid), {

@@ -1354,6 +1354,7 @@ audio:not([controls]) {
   overflow: hidden;
   background-color: #dddbdd;
 }
+
 .skeleton-box::after {
   position: absolute;
   top: 0;

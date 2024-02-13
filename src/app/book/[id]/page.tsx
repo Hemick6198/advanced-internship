@@ -186,7 +186,6 @@ const Page = () => {
         <>
           <div className="wrapper">
             <SidebarSizingAndSearchBar />
-
             <div className="row">
               <div className="container">
                 <BookSkeleton />

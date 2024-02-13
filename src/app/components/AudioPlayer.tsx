@@ -54,7 +54,6 @@ function AudioPlayer({ book, onAudioEnded }: AudioPlayerProps) {
         {...{ audioRef, progressBarRef, duration, setTimeProgress }}
       />
       <ProgressBar {...{ progressBarRef, audioRef, timeProgress, duration }} />
-
       <audio
         ref={audioRef}
         onTimeUpdate={() => {

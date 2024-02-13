@@ -1,9 +1,4 @@
-import {
-  collection,
-  addDoc,
-  doc,
-  onSnapshot,
-} from "firebase/firestore";
+import { collection, addDoc, doc, onSnapshot } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 import getStripe from "./initializeStripe";
 

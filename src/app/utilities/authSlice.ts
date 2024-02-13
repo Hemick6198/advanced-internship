@@ -26,13 +26,12 @@ export const initializeAuth = createAsyncThunk(
         if (user) {
           await user.getIdToken(true);
           const decodedToken = await getIdTokenResult(user);
-
+          console.log(decodedToken)
           const userObj: CustomUser = {
             uid: user.uid,
             email: user.email,
             subscriptionPlan: decodedToken.claims.stripeRole,
           };
-
           dispatch(setUser(userObj));
           dispatch(setIsUserAuth(true));
         } else {
