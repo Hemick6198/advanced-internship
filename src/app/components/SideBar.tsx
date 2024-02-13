@@ -1,8 +1,8 @@
+"use client";
 /* eslint-disable @next/next/no-img-element */
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import LogInModal from "./UI/LogInModal";
 import { auth } from "../firebase";
-import { useAuthStore } from "../utilities/authStore";
 import { useParams, usePathname } from "next/navigation";
 import {
   AiOutlineHome,
@@ -15,28 +15,28 @@ import { RxLetterCaseCapitalize } from "react-icons/rx";
 import { BsGear } from "react-icons/bs";
 import Link from "next/link";
 import { BiDownload, BiUpload } from "react-icons/bi";
+import type { RootState } from "../store";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleModal } from "../utilities/modalSlice";
+import { setIsUserAuth } from "../utilities/authSlice";
 
-interface SideBarProps {
-  isSidebarOpen: boolean;
-}
-
-const SideBar: React.FC<SideBarProps> = ({ isSidebarOpen }) => {
-  const [isClient, setIsClient] = useState(false);
+const SideBar = () => {
   const [fontSizeElement, setFontSizeElement] = useState<Element | null>(null);
-  const modal__dimRef = useRef(null);
-  const authStore = useAuthStore();
-  const isUserAuth = authStore.isUserAuth;
-  const params = useParams();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const modal__dimRef = useRef<HTMLDivElement>(null);
+  const isModalOpen = useSelector(
+    (state: RootState) => state.modal.isModalOpen
+  );
   const [fontSizes, setFontSizes] = useState("font1");
+  const isUserAuth = useSelector((state: RootState) => state.auth.isUserAuth);
+  const isSidebarOpen = useSelector(
+    (state: RootState) => state.sidebar.isSidebarOpen
+  );
+  const params = useParams();
   const pathname = usePathname();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const dispatch = useDispatch();
 
   function openModal() {
-    setIsModalOpen(!isModalOpen);
+    dispatch(toggleModal());
   }
 
   function handleOverlayClick(event: any) {
@@ -92,14 +92,16 @@ const SideBar: React.FC<SideBarProps> = ({ isSidebarOpen }) => {
     fontSizeElement?.classList.remove("font4");
   }
 
+  // testing 
+
   const logUserOut = () => {
     auth.signOut();
-    authStore.setIsUserAuth(false);
+    setIsUserAuth(false);
   };
 
   return (
     <>
-      {isModalOpen ? <LogInModal openModal={openModal} /> : <></>}
+      {isModalOpen ? <LogInModal /> : <></>}
       <div
         className={`modal__dim ${isModalOpen ? "dimmed" : ""}`}
         ref={modal__dimRef}
@@ -119,9 +121,8 @@ const SideBar: React.FC<SideBarProps> = ({ isSidebarOpen }) => {
             />
           </div>
           <div
-            className={`sidebar__wrapper ${
-              pathname.startsWith("/player/") ? "sidebar__bump-up" : ""
-            }`}
+            className={`sidebar__wrapper 
+            ${pathname.startsWith("/player/") ? "sidebar__bump-up" : ""}`}
           >
             <div className="sidebar__top">
               <Link href="/for-you" className={`sidebar__link--wrapper`}>
@@ -225,7 +226,7 @@ const SideBar: React.FC<SideBarProps> = ({ isSidebarOpen }) => {
                 <div className="sidebar__link--text">Help &amp; Support</div>
               </div>
               <div>
-                {isClient && isUserAuth === true ? (
+                {isUserAuth === true ? (
                   <div className="sidebar__link--wrapper" onClick={logUserOut}>
                     <div className="sidebar__link--line "></div>
                     <div className="sidebar__icon--wrapper">

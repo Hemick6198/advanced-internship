@@ -1,24 +1,31 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import { AiFillBulb, AiFillFileText, AiFillAudio } from "react-icons/ai";
 import { BsStarHalf, BsStarFill } from "react-icons/bs";
 import { BiCrown } from "react-icons/bi";
 import { RiLeafLine } from "react-icons/ri";
 import LogInModal from "./components/UI/LogInModal";
-import { useAuthStore } from "./utilities/authStore";
 import { useRouter } from "next/navigation";
 import Footer from "./components/Footer";
+import type { RootState } from "../app/store";
+import { useSelector, useDispatch } from "react-redux";
+import { AppDispatch } from "../app/store";
+import { initializeAuth } from "./utilities/authSlice";
+import { toggleModal } from "../app/utilities/modalSlice";
+
 
 export default function Home() {
-  const [isModalOpen, setModalOpen] = useState(false);
+  const isModalOpen = useSelector(
+    (state: RootState) => state.modal.isModalOpen
+  );
+  const isUserAuth = useSelector((state: RootState) => state.auth.isUserAuth);
   const modal__dimRef = useRef(null);
-  const authStore = useAuthStore();
   const router = useRouter();
-  const isUserAuth = authStore.isUserAuth;
+  const dispatch: AppDispatch = useDispatch();
 
   function openModal() {
-    setModalOpen(!isModalOpen);
+    dispatch(toggleModal());
   }
 
   function handleOverlayClick(event: any) {
@@ -26,6 +33,10 @@ export default function Home() {
       openModal();
     }
   }
+
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
 
   function routePersistentLogIn() {
     if (isUserAuth === true) {
@@ -35,7 +46,7 @@ export default function Home() {
 
   useEffect(() => {
     routePersistentLogIn();
-  }, [isUserAuth]);
+  }, [initializeAuth]);
 
   return (
     <>
@@ -63,7 +74,7 @@ export default function Home() {
             </ul>
           </div>
         </nav>
-        {isModalOpen ? <LogInModal openModal={openModal} /> : <></>}
+        {isModalOpen ? <LogInModal /> : <></>}
         <section id="landing">
           <div className="container">
             <div className="row">
@@ -174,7 +185,8 @@ export default function Home() {
                   <div className="statistics__data">
                     <div className="statistics__data--number">91%</div>
                     <div className="statistics__data--title">
-                      of Summarist members <b>report feeling more productive </b>
+                      of Summarist members{" "}
+                      <b>report feeling more productive </b>
                       {""}
                       after incorporating the service into their daily routine.
                     </div>

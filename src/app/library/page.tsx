@@ -7,7 +7,7 @@ import React, {
   useRef,
 } from "react";
 import SavedBooks from "../components/SavedBooks";
-import SidebarSizing from "../components/UI/SidebarSizing";
+import SidebarSizingAndSearchBar from "../components/UI/SidebarSizingAndSearchbar";
 import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
 import {
   browserSessionPersistence,
@@ -16,20 +16,24 @@ import {
 } from "firebase/auth";
 import { db } from "../firebase";
 import { useBookStore } from "../utilities/bookStore";
-import { useAuthStore } from "@/app/utilities/authStore";
 import LogInModal from "../components/UI/LogInModal";
 import RecommendedSkeleton from "../components/UI/RecommendedSkeleton";
 import { Skeleton } from "@mui/material";
+import type { RootState } from "../../app/store";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleModal } from "../utilities/modalSlice";
+import { AppDispatch } from "../store";
+import { initializeAuth } from "../utilities/authSlice";
 
 function Library() {
-  const authStore = useAuthStore();
-  const isUserAuth = authStore.isUserAuth;
-  const [isClient, setIsClient] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [savedBooks, setSavedBooks] = useState<any[]>([]);
   const [savedBookIds, setSavedBookIds] = useState<string[]>([]);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const dispatch: AppDispatch = useDispatch();
+  const isUserAuth = useSelector((state: RootState) => state.auth.isUserAuth);
+  const isModalOpen = useSelector(
+    (state: RootState) => state.modal.isModalOpen
+  );
   const [audioDurations, setAudioDurations] = useState<{
     [id: string]: number;
   }>({});
@@ -39,8 +43,12 @@ function Library() {
   const modal__dimRef = useRef(null);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    dispatch(initializeAuth());
+  }, [dispatch]);
+
+  const openModal = () => {
+    dispatch(toggleModal());
+  };
 
   useEffect(() => {
     const fetchSavedBooks = async () => {
@@ -63,7 +71,7 @@ function Library() {
     };
 
     fetchSavedBooks();
-  }, [isClient]);
+  }, [isUserAuth]);
 
   useEffect(() => {
     if (savedBookIds.length === 0) {
@@ -108,17 +116,9 @@ function Library() {
     fetchBooksData();
   }, [savedBookIds]);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  function openModal() {
-    setIsModalOpen(!isModalOpen);
-  }
-
   function handleOverlayClick(event: any) {
     if (event.target === modal__dimRef.current) {
-      openModal();
+      dispatch(toggleModal());
     }
   }
 
@@ -146,12 +146,8 @@ function Library() {
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        const bookRef = doc(
-          collection(db, "users", user.uid, "library"),
-          bookId
-        );
+        const bookRef = doc(db, "users", user.uid, "library", bookId);
         await deleteDoc(bookRef);
-
         setSavedBooks((prevSavedBooks) =>
           prevSavedBooks.filter((book) => book.id !== bookId)
         );
@@ -163,13 +159,10 @@ function Library() {
 
   return (
     <div className="wrapper">
-      <SidebarSizing
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-      />
+      <SidebarSizingAndSearchBar />
       <div className="row">
         <div className="container">
-          {isClient && isUserAuth ? (
+          {isUserAuth ? (
             <>
               <div className="for-you__title">Saved Books</div>
               {isLoading ? (
@@ -237,7 +230,7 @@ function Library() {
           ref={modal__dimRef}
           onClick={handleOverlayClick}
         >
-          <LogInModal openModal={openModal} />
+          <LogInModal />
         </div>
       )}
     </div>

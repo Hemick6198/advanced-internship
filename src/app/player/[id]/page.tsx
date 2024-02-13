@@ -3,12 +3,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
-import { useAuthStore } from "@/app/utilities/authStore";
 import LogInModal from "@/app/components/UI/LogInModal";
 import AudioPlayer from "@/app/components/AudioPlayer";
 import PlayerSkeleton from "@/app/components/UI/PlayerSkeleton";
-import SidebarSizing from "@/app/components/UI/SidebarSizing";
+import SidebarSizingAndSearchBar from "@/app/components/UI/SidebarSizingAndSearchbar";
 import { useBookStore } from "@/app/utilities/bookStore";
+import type { RootState } from "../../store";
+import { useSelector, useDispatch } from "react-redux";
+import { toggleModal } from "../../utilities/modalSlice";
+import { AppDispatch } from "../../store";
+import { initializeAuth } from "../../utilities/authSlice";
 
 interface Book {
   id: string;
@@ -33,20 +37,16 @@ interface Book {
 
 function Page() {
   const [book, setBook] = useState<Book | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const modal__dimRef = useRef<HTMLDivElement>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
-  const params = useParams();
-  const authStore = useAuthStore();
-  const isUserAuth = authStore?.isUserAuth;
   const { addFinishedBook } = useBookStore();
-
+  const modal__dimRef = useRef<HTMLDivElement>(null);
+  const params = useParams();
   const API__URL = `https://us-central1-summaristt.cloudfunctions.net/getBook?id=${params.id}`;
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  const dispatch: AppDispatch = useDispatch();
+  const isUserAuth = useSelector((state: RootState) => state.auth.isUserAuth);
+  const isModalOpen = useSelector(
+    (state: RootState) => state.modal.isModalOpen
+  );
 
   const getBook = async () => {
     const { data } = await axios.get(API__URL);
@@ -54,19 +54,23 @@ function Page() {
     setIsLoading(false);
   };
 
-  function openModal() {
-    setIsModalOpen(!isModalOpen);
-  }
+  const openModal = () => {
+    dispatch(toggleModal());
+  };
+
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
 
   function handleOverlayClick(event: React.MouseEvent<HTMLDivElement>) {
     if (event.target === modal__dimRef.current) {
-      openModal();
+      toggleModal();
     }
   }
 
   useEffect(() => {
     if (isUserAuth === false) {
-      openModal();
+      toggleModal();
     }
   }, [isUserAuth]);
 
@@ -76,10 +80,7 @@ function Page() {
 
   return (
     <>
-      <SidebarSizing
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-      />
+      <SidebarSizingAndSearchBar />
       {isLoading ? (
         <>
           <PlayerSkeleton />
@@ -91,7 +92,7 @@ function Page() {
           onClick={handleOverlayClick}
         >
           <div className="summary">
-            {isModalOpen ? <LogInModal openModal={openModal} /> : <></>}
+            {isModalOpen ? <LogInModal /> : <></>}
             <div className="audio__book--summary" style={{ fontSize: "16px" }}>
               <div className="audio__book--summary-title">
                 <b>{book?.title}</b>

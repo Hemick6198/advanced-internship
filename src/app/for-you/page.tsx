@@ -6,8 +6,11 @@ import axios from "axios";
 import React, { useState, useEffect, MutableRefObject, useRef } from "react";
 import SelectedSkeleton from "../components/UI/SelectedBookSkeleton";
 import { AiFillPlayCircle } from "react-icons/ai";
-import SidebarSizing from "../components/UI/SidebarSizing";
+import SidebarSizingAndSearchBar from "../components/UI/SidebarSizingAndSearchbar";
 import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../store";
+import { initializeAuth } from "../utilities/authSlice";
 
 interface SelectedBook {
   id: string;
@@ -37,16 +40,16 @@ const SelectedBooks__API =
 function Page() {
   const [selectedBook, setSelectedBook] = useState<SelectedBook[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [audioDurations, setAudioDurations] = useState<{
     [id: string]: number;
   }>({});
   const audioRefs: MutableRefObject<{ [id: string]: HTMLAudioElement | null }> =
     useRef({});
+  const dispatch: AppDispatch = useDispatch();
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
 
   const selectedBookQuery = async () => {
     const { data } = await axios.get(`${SelectedBooks__API}`);
@@ -74,34 +77,9 @@ function Page() {
     setAudioDurations((prevDurations) => ({ ...prevDurations, [id]: seconds }));
   };
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (typeof window !== "undefined") {
-        if (window.innerWidth > 768) {
-          setIsSidebarOpen(true);
-        } else {
-          setIsSidebarOpen(false);
-        }
-      }
-    };
-
-    handleResize();
-
-    if (typeof window !== "undefined") {
-      window.addEventListener("resize", handleResize);
-
-      return () => {
-        window.removeEventListener("resize", handleResize);
-      };
-    }
-  }, []);
-
   return (
     <>
-      <SidebarSizing
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebar={toggleSidebar}
-      />
+      <SidebarSizingAndSearchBar />
       <div className="wrapper">
         <div className="row">
           <div className="container">
