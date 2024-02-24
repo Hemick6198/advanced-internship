@@ -14,6 +14,7 @@ import { AppDispatch } from "../app/store";
 import { initializeAuth } from "./utilities/authSlice";
 import { toggleModal } from "../app/utilities/modalSlice";
 
+
 export default function Home() {
   const isModalOpen = useSelector(
     (state: RootState) => state.modal.isModalOpen

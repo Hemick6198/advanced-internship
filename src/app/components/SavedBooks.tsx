@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { MutableRefObject, useEffect, useState } from "react";
-import RecommendedSkeleton from "./UI/RecommendedSkeleton";
 import { AiOutlineClockCircle, AiOutlineStar } from "react-icons/ai";
 import { IoTrashOutline } from "react-icons/io5";
 import Link from "next/link";

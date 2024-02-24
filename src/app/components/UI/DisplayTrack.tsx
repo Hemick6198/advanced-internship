@@ -11,7 +11,6 @@ interface AudioPlayerProps {
 const DisplayTrack = ({
   book,
   audioRef,
-  progressBarRef,
   setDuration,
 }: AudioPlayerProps) => {
 
