@@ -24,7 +24,6 @@ function UserSettings() {
   const user = useSelector((state: RootState) => state.auth.user);
   const subscriptionPlan = user?.subscriptionPlan;
 
-  // console.log(user);
 
   useEffect(() => {
     dispatch(initializeAuth());

@@ -91,9 +91,7 @@ const SideBar = () => {
     fontSizeElement?.classList.remove("font3");
     fontSizeElement?.classList.remove("font4");
   }
-
-  // testing 
-
+  
   const logUserOut = () => {
     auth.signOut();
     setIsUserAuth(false);
